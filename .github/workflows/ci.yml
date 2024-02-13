@@ -1,17 +1,20 @@
 name: CI
 on:
-  push: { branches: [master] }
-  pull_request: { branches: [master] }
-  schedule: [ cron: '12 2 * * 6' ]  # Every Saturday, 02:12
+  push:
+    branches:
+      - "**"
+  pull_request:
+    branches:
+      - "main"
 
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        python-version: [3.7, 3.8, '3.10']
+        python-version: ["3.7", "3.8", "3.9", "3.10", "3.11", "3.12"]
         include:
           - python-version: 3.9
             test-type: lint
@@ -20,7 +23,7 @@ jobs:
 
     steps:
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -31,11 +34,9 @@ jobs:
           key: ${{ runner.os }}-py${{ matrix.python-version }}
 
       - name: Checkout repo
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 3
-      - name: Fetch tags
-        run: git fetch --depth=1 origin +refs/tags/*:refs/tags/*
 
       - name: Install dependencies
         run: |
